@@ -3,7 +3,7 @@ from ruamel.yaml import YAML
 from box import Box
 import tensorflow as tf
 from ..models.stacked_unet_model import Model
-from ..models.trainer import Trainer
+from ..core.base_trainer import BaseTrainer as Trainer
 
 tf.logging.set_verbosity(tf.logging.INFO)
 logger = tf.logging

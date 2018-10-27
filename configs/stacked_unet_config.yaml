@@ -1,0 +1,22 @@
+model_name: stacked-unet
+
+hyperparams:
+  learning_rate: 0.0001
+
+train:
+  epochs: 100
+  batch_size: 16
+  val_epoch: 10
+  save_epoch: 10
+
+file:
+  logdir: log/
+  save_path: save/
+
+inputs:
+  x_pl:
+    name: input
+    shape: [128, 128, 3]
+  y_pl:
+    name: output
+    shape: [128, 128, 1]
