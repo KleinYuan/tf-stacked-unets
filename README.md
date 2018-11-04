@@ -3,6 +3,13 @@
 Tensorflow implementation of Stacked Unets [ICLR 2019 Reproducibility Challenge]: https://openreview.net/forum?id=BJgFcj0qKX
 
 
+# Training Details
+
+* Pre-train SUNet-7-128 with MS-COCO-2014 (80 classes)
+
+* TBA
+
+
 # Train
 
 ```

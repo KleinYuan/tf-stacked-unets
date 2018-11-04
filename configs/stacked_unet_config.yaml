@@ -20,3 +20,8 @@ inputs:
   y_pl:
     name: output
     shape: [128, 128, 1]
+
+data:
+  standard: True
+  name: 'mscoco'
+  number: 1000

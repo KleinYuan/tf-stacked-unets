@@ -60,3 +60,6 @@ class Model(object):
 				name=self.config.inputs.y_pl.name
 			)
 			self.prediction = self.forward(inputs=self.x_pl)
+
+	def get_train_ops(self):
+		return [self.init_graph, self.graph]

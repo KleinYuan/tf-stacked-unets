@@ -4,6 +4,7 @@ from box import Box
 import tensorflow as tf
 from ..models.stacked_unet_model import Model
 from ..core.base_trainer import BaseTrainer as Trainer
+from ..core.base_data import Model as DataModel
 
 tf.logging.set_verbosity(tf.logging.INFO)
 logger = tf.logging
@@ -11,8 +12,8 @@ logger = tf.logging
 
 def run(config):
 	model = Model(config=config.model, logger=logger)
-	trainer = Trainer(model=model, config=config.train, logger=logger)
-
+	data_model = DataModel(config=config.data, logger=logger)
+	trainer = Trainer(model=model, data_model=data_model, config=config.train, logger=logger)
 	trainer.train()
 
 
