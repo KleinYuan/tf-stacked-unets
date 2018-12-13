@@ -9,6 +9,7 @@ Created on Sat Nov  3 16:39:48 2018
 import tensorflow as tf
 from layer import (conv2d, deconv2d, concat, weight_variable, bias_variable)
 import logging
+import numpy as np
 
 def _down_stream(inputs, stride, keep_prob, weight_shape, bias_shape, scope, logger):     
     with tf.name_scope(scope):
@@ -105,11 +106,12 @@ def unet_module(x, input_channels, logger, keep_prob, feature_map=64, filter_siz
 
 if __name__ == "__main__":
     test_logger = logging.getLogger('Mylogger')
-    x = tf.random_normal([1, 64, 64, 128],dtype=tf.float32)
-    x = tf.cast(x, tf.float32)
-    output = unet_module(x, input_channels=128, logger=test_logger, keep_prob=0.5, feature_map=64, filter_size_bound=1, filter_size=3)
+    x_test = tf.placeholder(tf.float32, shape = (1,64,64,128))
+    output = unet_module(x_test, input_channels=128, logger=test_logger, keep_prob=0.5, feature_map=64, filter_size_bound=1, filter_size=3)
     with tf.Session() as sess:
-        output_value = output.eval()
+        
+        rand_array = np.random.rand(1,64,64,128)
+        print(sess.run(output, feed_dict={x_test: rand_array}))
 
 
 
