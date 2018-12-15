@@ -15,7 +15,7 @@ def _down_stream(inputs, stride, keep_prob, weight_shape, bias_shape, scope, log
     with tf.name_scope(scope):
         weights = weight_variable(weight_shape, name = "weights")
         bias = bias_variable(bias_shape, name="bias")
-        output = conv2d(inputs, weights, stride, bias, "NHWC", keep_prob)
+        output = conv2d(inputs, weights, stride, bias, keep_prob)
         logger.info("{} ---> {}".format(inputs, output))
         return output, weights, bias
 
@@ -23,13 +23,13 @@ def _down_stream(inputs, stride, keep_prob, weight_shape, bias_shape, scope, log
 def _up_stream(inputs, stride, weight_shape, scope, logger):
     with tf.name_scope(scope):
         weights = weight_variable(weight_shape, name = "w_up_1")
-        output = deconv2d(inputs, weights, stride, "NHWC")
+        output = deconv2d(inputs, weights, stride)
         logger.info("{} ---> {}".format(inputs, output))
         return output, weights
 
 
 
-def unet_module(x, input_channels, logger, keep_prob, feature_map=64, filter_size_bound=1, filter_size=3):
+def unet_module(x_unet, input_channels, logger, keep_prob, feature_map=64, filter_size_bound=1, filter_size=3):
     """
         Create a new convolutional unet with the given paramerters
         :param x:                  image input
@@ -42,9 +42,9 @@ def unet_module(x, input_channels, logger, keep_prob, feature_map=64, filter_siz
 
     # placeholder for the input image
     with tf.name_scope("preprocessing"):
-        nx = tf.shape(x)[1]
-        ny = tf.shape(x)[2]
-        x_image = tf.reshape(x, tf.stack([-1, nx, ny, input_channels]))
+        nx = tf.shape(x_unet)[1]
+        ny = tf.shape(x_unet)[2]
+        x_image = tf.reshape(x_unet, tf.stack([-1, nx, ny, input_channels]))
         x_image = tf.cast(x_image, tf.float32)
         in_node = x_image
 
@@ -91,7 +91,7 @@ def unet_module(x, input_channels, logger, keep_prob, feature_map=64, filter_siz
     deconv2, w_up_2 = _up_stream(inputs=deconv1, stride=1, weight_shape=weight_shape_inner,
                                  logger=logger, scope="deconv2")
     concat_layer = concat(conv3, deconv2)
-    deconv3, w_up_3 = _up_stream(inputs=concat_layer, stride=2, weight_shape=weight_shape_inner,
+    deconv3, w_up_3 = _up_stream(inputs=concat_layer, stride=2, weight_shape=wight_shape_inner,
                                  logger=logger, scope="deconv3")
     deconv4, w_up_4 = _up_stream(inputs=deconv3, stride=1, weight_shape=weight_shape_inner,
                                  logger=logger, scope="deconv4")
@@ -106,11 +106,10 @@ def unet_module(x, input_channels, logger, keep_prob, feature_map=64, filter_siz
 
 if __name__ == "__main__":
     test_logger = logging.getLogger('Mylogger')
-    x_test = tf.placeholder(tf.float32, shape = (1,64,64,128))
-    output = unet_module(x_test, input_channels=128, logger=test_logger, keep_prob=0.5, feature_map=64, filter_size_bound=1, filter_size=3)
-    with tf.Session() as sess:
-        
-        rand_array = np.random.rand(1,64,64,128)
+    x_test = tf.placeholder(tf.float32, shape = [1,64,64,128])
+    output = unet_module(x_unet = x_test, input_channels=128, logger=test_logger, keep_prob=0.5, feature_map=64, filter_size_bound=1, filter_size=3)
+    with tf.Session() as sess:  
+        rand_array = tf.random_normal(shape = [1,64,64,128])
         print(sess.run(output, feed_dict={x_test: rand_array}))
 
 
