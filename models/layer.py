@@ -60,7 +60,7 @@ def conv2d(x_con, W, stride, b, keep_prob_):
         x_act = tf.nn.relu(x_norm, name="x_act")
         
         # Convolution process for the activated data
-        x_conv = tf.nn.conv2d(x_act, W, strides=[1, stride, stride, 1], padding='VALID', name="x_conv")
+        x_conv = tf.nn.conv2d(x_act, W, strides=[1, stride, stride, 1], padding='SAME', name="x_conv")
         
         # add bias for the data 
         x_conv_bias = tf.nn.bias_add(x_conv, b)
@@ -81,7 +81,7 @@ def deconv2d(x_dec, W, stride):
         x_shape = tf.shape(x_dec)
         # obtain the output_shape
         output_shape = tf.stack([x_shape[0], x_shape[1]*2, x_shape[2]*2, x_shape[3]])
-        return tf.nn.conv2d_transpose(x_dec, W, output_shape, strides=[1, stride, stride, 1], padding='VALID', name="conv2d_transpose")
+        return tf.nn.conv2d_transpose(x_dec, W, output_shape, strides=[1, stride, stride, 1], padding='SAME', name="conv2d_transpose")
         
     
     

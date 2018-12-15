@@ -91,7 +91,7 @@ def unet_module(x_unet, input_channels, logger, keep_prob, feature_map=64, filte
     deconv2, w_up_2 = _up_stream(inputs=deconv1, stride=1, weight_shape=weight_shape_inner,
                                  logger=logger, scope="deconv2")
     concat_layer = concat(conv3, deconv2)
-    deconv3, w_up_3 = _up_stream(inputs=concat_layer, stride=2, weight_shape=weight_shape_inner,
+    deconv3, w_up_3 = _up_stream(inputs=concat_layer, stride=2, weight_shape=wight_shape_inner,
                                  logger=logger, scope="deconv3")
     deconv4, w_up_4 = _up_stream(inputs=deconv3, stride=1, weight_shape=weight_shape_inner,
                                  logger=logger, scope="deconv4")
