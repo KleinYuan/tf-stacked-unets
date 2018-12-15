@@ -4,6 +4,7 @@ import tensorflow as tf
 class Model(object):
 
 	loss = None
+	optimizer = None
 	x_pl = None
 	y_pl = None
 	prediction = None

@@ -1,47 +1,31 @@
-#from ..core.base_model import BaseModel
+from core.base_model import Model as BaseModel
 #from ..models.unet import Model as UnetModule
 import tensorflow as tf
-from utils import *
+from utils.layers import conv_relu
 
-class Model(object):
-     def __init__(self):
-         self.define_loss()
-         self.define_optimizer()
-         self.forward()
-        
+
+class Model(BaseModel):
+
      def define_loss(self):
-         self.sunet_loss = tf.nn.softmax_cross_entropy_with_logits(logits=self.logits, labels=self.Y)
+        self.loss = tf.nn.softmax_cross_entropy_with_logits(logits=self.prediction, labels=self.y_pl)
 
      def define_optimizer(self):
-          starter_learning_rate = 0.0002
-          decay_steps = 1000
-          global_step = 100000
-          learning_rate = tf.train.cosine_decay(starter_learning_rate, global_step, decay_steps)
-          self.sunet_train_op = tf.train.MomentumOptimizer(learning_rate, 0.95).minimize(self.sunet_loss)
-        
-     def forward(self):  
-        self.X = tf.placeholder(tf.float32, [None, 224, 224, 3])
-        self.Y = tf.placeholder(tf.float32, [None, 10])        
+        starter_learning_rate = 0.0002
+        decay_steps = 1000
+        global_step = 100000
+        learning_rate = tf.train.cosine_decay(starter_learning_rate, global_step, decay_steps)
+        self.optimizer = tf.train.MomentumOptimizer(learning_rate, 0.95).minimize(self.loss)
+
+     def forward(self, inputs):
         
         with tf.variable_scope("sunet"):
-            W_conv0 = weight_variable([7, 7, 3, 64])
-            b_conv0 = weight_variable([64])
-            h_conv0 = tf.nn.conv2d(inputs, W_conv0, strides=[1, 2, 2, 1], padding='SAME')
-            h_conv0 = tf.nn.relu(h_conv0 + b_conv0)
-            
-            W_conv1 = weight_variable([3, 3, 64, 128])
-            b_conv1 = weight_variable([128])
-            h_conv1 = tf.nn.conv2d(h_conv0, W_conv1, strides=[1, 2, 2, 1], padding='SAME')
-            h_conv1 = tf.nn.relu(h_conv1, b_conv1)
-                
-            W_conv2 = weight_variable([3, 3, 128, 128])
-            b_conv2 = weight_variable([128])
-            h_conv2 = tf.nn.conv2d(h_conv1, W_conv2, strides=[1, 1, 1, 1], padding='SAME')
-            h_conv2 = tf.nn.relu(h_conv2, b_conv2)     
-            combined = h_conv1 + h_conv2
+            conv1  = conv_relu(inputs, kernel_size=7, depth=64, stride=2, activatiton=True, name_scope="conv2d_1", padding='SAME')
+            conv2 = conv_relu(conv1, kernel_size=3, depth=128, stride=2, activatiton=True, name_scope="conv2d_2", padding='SAME')
+            conv3 = conv_relu(conv2, kernel_size=3, depth=128, stride=1, activatiton=True, name_scope="conv2d_3", padding='SAME')
+            concat_1_2 = tf.concat([conv1, conv2], axis=-1, name='concat_1_2')
+
         
             h_unet1 = Unet(combined)
-# todo change the Unet to He's code
             h_pool1 = tf.nn.max_pool(h_unet1, ksize=[1, 2, 2, 1],
                         strides=[1, 2, 2, 1], padding='SAME')
                         
@@ -63,12 +47,4 @@ class Model(object):
             logits = tf.matmul(h_pool4, W_fc0) + b_fc0
             pred = tf.nn.softmax(logits)
             return pred
-
-if __name__ == "__main__":
-    X = tf.random_normal(shape = [10, 224, 224, 3])
-    Y = tf.random_normal(shape = [10, 10])
-    model = Model
-    with tf.Session() as sess:
-        sess.run
-
 
