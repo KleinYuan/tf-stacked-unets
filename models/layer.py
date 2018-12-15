@@ -51,16 +51,16 @@ def bias_variable(shape, name="bias"):
     dformat: data format
     keep_prob_: keep probability
 '''    
-def conv2d(x, W, stride, b, keep_prob_, dformat = "NHWC"):
+def conv2d(x_con, W, stride, b, keep_prob_):
     with tf.name_scope("conv2d"):
         # batch normalization for the input data
-        x_norm = tf.nn.batch_normalization(x, mean=0, variance=1, offset=1 , scale=1 , variance_epsilon=1 , name = "x_norm")
+        x_norm = tf.nn.batch_normalization(x_con, mean=0.0, variance=1.0, offset=1.0 , scale=1.0, variance_epsilon=1.0, name="x_norm")
         
         # Relu activation for the normalized input
-        x_act = tf.nn.relu(x_norm, name = "x_act")
+        x_act = tf.nn.relu(x_norm, name="x_act")
         
         # Convolution process for the activated data
-        x_conv = tf.nn.conv2d(x_act, W, strides = [1, stride, stride, 1], padding = 'VALID', data_format = dformat, name = "x_conv")
+        x_conv = tf.nn.conv2d(x_act, W, strides=[1, stride, stride, 1], padding='VALID', name="x_conv")
         
         # add bias for the data 
         x_conv_bias = tf.nn.bias_add(x_conv, b)
@@ -75,13 +75,13 @@ def conv2d(x, W, stride, b, keep_prob_, dformat = "NHWC"):
     b: bias, 
     dformat: data format
 '''
-def deconv2d(x, W, stride, dformat = "NHWC"): 
+def deconv2d(x_dec, W, stride): 
     with tf.name_scope("deconv2d"):
         # obtain the shape of the input data x
-        x_shape = tf.shape(x)
+        x_shape = tf.shape(x_dec)
         # obtain the output_shape
         output_shape = tf.stack([x_shape[0], x_shape[1]*2, x_shape[2]*2, x_shape[3]])
-        return tf.nn.conv2d_transpose(x, W, output_shape, strides=[1, stride, stride, 1], padding='VALID', name="conv2d_transpose")
+        return tf.nn.conv2d_transpose(x_dec, W, output_shape, strides=[1, stride, stride, 1], padding='VALID', name="conv2d_transpose")
         
     
     
