@@ -53,7 +53,7 @@ def unet_module(x_unet, input_channels, logger, keep_prob, feature_map=64, filte
     weight_shape_input = [filter_size_bound, filter_size_bound, input_channels, feature_map]
     weight_shape_output = [filter_size, filter_size, feature_map, input_channels]
     weight_shape_inner = [filter_size, filter_size, feature_map, feature_map]
-    weight_shape_concat = [filter_size, filter_size, input_channels, feature_map]
+    weight_shape_concat = [filter_size, filter_size, feature_map, input_channels]
     b_shape = [feature_map]
     keep_p = keep_prob
     
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     x_test = tf.placeholder(tf.float32, shape = [1,64,64,128])
     output = unet_module(x_unet = x_test, input_channels=128, logger=test_logger, keep_prob=0.5, feature_map=64, filter_size_bound=1, filter_size=3)
     with tf.Session() as sess:  
-        rand_array = tf.random_normal(shape = [1,64,64,128])
+        rand_array = np.random.rand(1,64,64,128)
         print(sess.run(output, feed_dict={x_test: rand_array}))
 
 
