@@ -125,6 +125,7 @@ if __name__ == "__main__":
     output = unet_module(x_unet = x_test, input_channels=128, logger=test_logger, keep_prob=0.5, feature_map=64, filter_size_bound=1, filter_size=3)
     with tf.Session() as sess:  
         rand_array = np.random.rand(1,64,64,128)
+        tf.initialize_all_variables().run()
         print(sess.run(output, feed_dict={x_test: rand_array}))
 
 
