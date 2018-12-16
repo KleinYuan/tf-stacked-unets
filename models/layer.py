@@ -83,7 +83,22 @@ def deconv2d(x_dec, W, stride):
         output_shape = tf.stack([x_shape[0], x_shape[1]*stride, x_shape[2]*stride, x_shape[3]])
         return tf.nn.conv2d_transpose(x_dec, W, output_shape, strides=[1, stride, stride, 1], padding='SAME', name="conv2d_transpose")
         
-    
+def deconv2d_concat(x_dec, W, stride): 
+    with tf.name_scope("deconv2d"):
+        # obtain the shape of the input data x
+        x_shape = tf.shape(x_dec)
+        # obtain the output_shape
+        output_shape = tf.stack([x_shape[0], x_shape[1]*stride, x_shape[2]*stride, x_shape[3] // 2])
+        return tf.nn.conv2d_transpose(x_dec, W, output_shape, strides=[1, stride, stride, 1], padding='SAME', name="conv2d_transpose")
+        
+def deconv2d_output(x_dec, output_channels, W, stride): 
+    with tf.name_scope("deconv2d"):
+        # obtain the shape of the input data x
+        x_shape = tf.shape(x_dec)
+        # obtain the output_shape
+        output_shape = tf.stack([x_shape[0], x_shape[1]*stride, x_shape[2]*stride, output_channels])
+        return tf.nn.conv2d_transpose(x_dec, W, output_shape, strides=[1, stride, stride, 1], padding='SAME', name="conv2d_transpose")
+      
     
 # ---- concatenation layer
 '''

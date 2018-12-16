@@ -7,7 +7,7 @@ Created on Sat Nov  3 16:39:48 2018
 """
 
 import tensorflow as tf
-from layer import (conv2d, deconv2d, concat, weight_variable, bias_variable)
+from layer import (conv2d, deconv2d, deconv2d_concat, deconv2d_output, concat, weight_variable, bias_variable)
 import logging
 import numpy as np
 
@@ -27,6 +27,20 @@ def _up_stream(inputs, stride, weight_shape, scope, logger):
         logger.info("{} ---> {}".format(inputs, output))
         return output, weights
 
+def _up_stream_concat(inputs, stride, weight_shape, scope, logger):
+    with tf.name_scope(scope):
+        weights = weight_variable(weight_shape, name = "w_up_1")
+        output = deconv2d_concat(inputs, weights, stride)
+        logger.info("{} ---> {}".format(inputs, output))
+        return output, weights
+
+def _up_stream_output(inputs, stride, weight_shape, output_channels, scope, logger):
+    with tf.name_scope(scope):
+        weights = weight_variable(weight_shape, name = "w_up_1")
+        output = deconv2d_output(inputs, output_channels, weights, stride)
+        logger.info("{} ---> {}".format(inputs, output))
+        return output, weights
+
 
 
 def unet_module(x_unet, input_channels, logger, keep_prob, feature_map=64, filter_size_bound=1, filter_size=3):
@@ -34,7 +48,7 @@ def unet_module(x_unet, input_channels, logger, keep_prob, feature_map=64, filte
         Create a new convolutional unet with the given paramerters
         :param x:                  image input
         :param batch_size:         the size of the batch at each training step
-        :param input_channels:     the number of channels of the input image
+        :param input_channels:      the number of channels of the input image
         :param feature_map:        the feature_map of each filter, corresponds to N in the original paper
         :param filter_size_bound:  the filter size for the first and last convolutional layers
         :param filter_size         the filter size the the inside convolutional layers
@@ -51,7 +65,7 @@ def unet_module(x_unet, input_channels, logger, keep_prob, feature_map=64, filte
 
     # specify the weight_shape for each layer
     weight_shape_input = [filter_size_bound, filter_size_bound, input_channels, feature_map]
-    weight_shape_output = [filter_size, filter_size, feature_map, input_channels]
+    weight_shape_output = [filter_size, filter_size, input_channels, feature_map]
     weight_shape_inner = [filter_size, filter_size, feature_map, feature_map]
     weight_shape_concat = [filter_size, filter_size, feature_map, input_channels]
     b_shape = [feature_map]
@@ -92,11 +106,11 @@ def unet_module(x_unet, input_channels, logger, keep_prob, feature_map=64, filte
     deconv2, w_up_2 = _up_stream(inputs=deconv1, stride=1, weight_shape=weight_shape_inner,
                                  logger=logger, scope="deconv2")
     concat_layer = concat(conv3, deconv2)
-    deconv3, w_up_3 = _up_stream(inputs=concat_layer, stride=2, weight_shape=weight_shape_concat,
+    deconv3, w_up_3 = _up_stream_concat(inputs=concat_layer, stride=2, weight_shape=weight_shape_concat,
                                  logger=logger, scope="deconv3")
     deconv4, w_up_4 = _up_stream(inputs=deconv3, stride=1, weight_shape=weight_shape_inner,
                                  logger=logger, scope="deconv4")
-    deconv5, w_up_5 = _up_stream(inputs=deconv4, stride=1, weight_shape=weight_shape_output,
+    deconv5, w_up_5 = _up_stream_output(inputs=deconv4, stride=1, weight_shape=weight_shape_output, output_channels = input_channels,
                                  logger=logger, scope="deconv5")
 
 
