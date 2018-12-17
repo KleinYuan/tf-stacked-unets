@@ -41,7 +41,7 @@ class BaseTrainer(object):
             train_loss_agg += _train_loss
             self.logger.info('  {} th iter: train loss: {}'.format(_iter, _train_loss))
             self.writer.add_summary(summary, epoch)
-        avg_train_loss = train_loss_agg / self.batch_size
+        avg_train_loss = train_loss_agg / _iter
         self.logger.info('{} th epoch:  train loss: {}'.format(epoch, avg_train_loss))
 
         if (epoch % self.save_epoch) == 0 or (epoch == self.epochs - 1):
