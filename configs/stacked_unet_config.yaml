@@ -13,7 +13,7 @@ file:
 data:
   standard: True
   name: 'cifar10'
-#  number: 1000
+  number: 1000
 
 model:
   name: "stacked-unet"

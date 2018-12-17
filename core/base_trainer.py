@@ -30,16 +30,19 @@ class BaseTrainer(object):
         y = self.y_train
 
         train_loss_agg = 0
+        _iter = 0
         for x_batch, y_batch in self.data_model.batch_iterator(x, y, batch_size=self.batch_size):
+            _iter += 1
             feed_dict = {
                 self.model.x_pl: x_batch,
                 self.model.y_pl: y_batch,
             }
             _, _train_loss, summary = self.session.run([self.model.optimizer, self.model.loss, self.summary_op], feed_dict=feed_dict)
             train_loss_agg += _train_loss
+            self.logger.info('  {} th iter: train loss: {}'.format(_iter, _train_loss))
             self.writer.add_summary(summary, epoch)
         avg_train_loss = train_loss_agg / self.batch_size
-        self.logger.info('{} th epoch:\ntrain loss: {}'.format(epoch, avg_train_loss))
+        self.logger.info('{} th epoch:  train loss: {}'.format(epoch, avg_train_loss))
 
         if (epoch % self.save_epoch) == 0 or (epoch == self.epochs - 1):
             snapshot_path = self.saver.save(sess=self.session, save_path="%s_%s" % (self.save_path, epoch))

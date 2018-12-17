@@ -15,7 +15,7 @@ class Model(BaseModel):
         self.loss = tf.losses.sparse_softmax_cross_entropy(logits=self.prediction, labels=self.y_pl)
 
      def define_optimizer(self):
-        self.learning_rate = tf.train.cosine_decay(self.config.starter_lr, self.config.global_step, self.config.decay_steps)
+        self.learning_rate = 0.01 # tf.train.cosine_decay(self.config.starter_lr, self.config.global_step, self.config.decay_steps)
         self.optimizer = tf.train.MomentumOptimizer(self.learning_rate, 0.95).minimize(self.loss)
 
      def forward(self, inputs):
