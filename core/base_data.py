@@ -33,6 +33,12 @@ class Model(object):
 		for ndx in range(0, l, batch_size):
 			yield xs[ndx:min(ndx + batch_size, l)], ys[ndx:min(ndx + batch_size, l)]
 
+	def get_train(self):
+		return self.x_train, self.y_train
+
+	def get_val(self):
+		return self.x_val, self.y_val
+
 
 def test():
 	class DummyConfig:

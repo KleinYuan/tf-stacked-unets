@@ -14,8 +14,6 @@ class BaseTrainer(object):
 	y_val = None
 	optimizer = None
 	summary_op = None
-	train_feed_dict = None
-	val_feed_dict = None
 
 	def __init__(self, model, data_model, config, logger):
 		self.model = model
@@ -62,14 +60,6 @@ class BaseTrainer(object):
 		self.x_train, self.y_train = self.data_model.get_train()
 		self.x_val, self.y_val = self.data_model.get_val()
 
-		self.train_feed_dict = {
-			self.model.x_pl: self.x_train,
-			self.model.y_pl: self.y_train
-		}
-		self.val_feed_dict = {
-			self.model.x_pl: self.x_val,
-			self.model.y_pl: self.y_val
-		}
 		with tf.Session(graph=self.graph) as self.session:
 			self.session.run(self.init_graph)
 			self.saver = tf.train.Saver()

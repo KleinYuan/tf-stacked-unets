@@ -13,7 +13,7 @@ logger = tf.logging
 def run(config):
 	model = Model(config=config.model, logger=logger)
 	data_model = DataModel(config=config.data, logger=logger)
-	trainer = Trainer(model=model, data_model=data_model, config=config.train, logger=logger)
+	trainer = Trainer(model=model, data_model=data_model, config=config, logger=logger)
 	trainer.train()
 
 
