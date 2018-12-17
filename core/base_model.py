@@ -11,12 +11,12 @@ class Model(object):
 	graph = None
 	summary_list = None
 	init_graph = None
+	learning_rate = None
 
 	def __init__(self, config, logger):
 		self.config = config
-		self.learning_rate = self.config.hyperparams.learning_rate
 		self.logger = logger
-		self.model_name = config.model_name
+		self.model_name = config.name
 
 		self.define_graph()
 

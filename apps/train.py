@@ -2,9 +2,9 @@ import sys
 from ruamel.yaml import YAML
 from box import Box
 import tensorflow as tf
-from ..models.stacked_unet_model import Model
-from ..core.base_trainer import BaseTrainer as Trainer
-from ..core.base_data import Model as DataModel
+from models.stacked_unet_model import Model
+from core.base_trainer import BaseTrainer as Trainer
+from core.base_data import Model as DataModel
 
 tf.logging.set_verbosity(tf.logging.INFO)
 logger = tf.logging
