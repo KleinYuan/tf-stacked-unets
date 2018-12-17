@@ -12,18 +12,19 @@ file:
 
 data:
   standard: True
-  name: 'mscoco'
-  number: 1000
+  name: 'cifar10'
+#  number: 1000
 
 model:
   name: "stacked-unet"
+  num_class: 10
   starter_lr: 0.0002
   decay_steps: 1000
   global_step: 100000
   inputs:
     x_pl:
       name: input
-      shape: [128, 128, 3]
+      shape: [32, 32, 3]
     y_pl:
       name: output
-      shape: [128, 128, 1]
+      shape: [1]
