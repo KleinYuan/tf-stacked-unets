@@ -80,14 +80,22 @@ class BaseTrainer(object):
         avg_train_loss = train_loss_agg / _iter
         self.logger.info('{} th epoch:  train loss: {}'.format(epoch, avg_train_loss))
 
+        val_loss_agg = 0
+        _val_iter = 0
         if (epoch % self.val_epoch) == 0:
-            feed_dict = {
-                self.model.x_pl: self.x_val,
-                self.model.y_pl: self.y_val,
-            }
-            val_loss, summary_val = self.session.run([self.model.loss, self.summary_op], feed_dict=feed_dict)
-            self.logger.info('{} th epoch:  val loss: {}'.format(epoch, val_loss))
-            self.writer_val.add_summary(summary_val, epoch)
+            for x_batch, y_batch in self.data_model.batch_iterator(self.x_val, self.y_val, batch_size=self.batch_size):
+                _val_iter += 1
+                feed_dict = {
+                    self.model.x_pl: x_batch,
+                    self.model.y_pl: y_batch,
+                }
+                _val_loss, summary_val = self.session.run([self.model.loss, self.summary_op], feed_dict=feed_dict)
+                val_loss_agg += _val_loss
+                self.logger.info('{} th epoch:  val loss: {}'.format(epoch, _val_loss))
+                self.writer_val.add_summary(summary_val, epoch)
+            avg_val_loss = val_loss_agg / _val_iter
+            self.logger.info('{} th epoch:  val loss: {}'.format(epoch, avg_val_loss))
+
         if (epoch % self.save_epoch) == 0 or (epoch == self.epochs - 1):
             snapshot_path = self.saver.save(sess=self.session, save_path="%s_%s" % (self.save_path, epoch))
             self.logger.info('Snapshot of {} th epoch is saved to {}'.format(epoch, snapshot_path))
