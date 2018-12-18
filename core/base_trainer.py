@@ -32,6 +32,7 @@ class BaseTrainer(object):
         train_loss_agg = 0
         _iter = 0
         for x_batch, y_batch in self.data_model.batch_iterator(x, y, batch_size=self.batch_size):
+            print('X Batch : {} ----> {}'.format(len(x_batch), x_batch[0].shape))
             _iter += 1
             feed_dict = {
                 self.model.x_pl: x_batch,

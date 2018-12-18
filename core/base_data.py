@@ -36,6 +36,7 @@ class Model(object):
             _img_dir = self.config.img_dir
             _label_fp = self.config.label_fp
             _label_dict = {}
+            _idx_ls = set()
             with open(_label_fp) as f:
                 labels_content = f.readlines()
             for _cls in labels_content:
@@ -51,26 +52,31 @@ class Model(object):
                 for filename in filenames:
                     if filename.endswith('.tar'):
                         WNID = filename.split('.')[0]
-                        print("  Extracting {} .tar ......".format(WNID))
+                        _idx_ls.add(int(_label_dict[WNID]['idx']))
                         _abs_dir = os.sep.join([dirpath, filename])
                         _extracted_to = os.sep.join([dirpath, WNID]) + '/'
-                        _tar = tarfile.open(_abs_dir)
-                        _tar.extractall(path=_extracted_to)
-                        _tar.close()
+                        if not self.config.extracted:
+                            print("  Extracting {} .tar ......".format(WNID))
+                            _tar = tarfile.open(_abs_dir)
+                            _tar.extractall(path=_extracted_to)
+                            _tar.close()
                         _img_extracted_dir_ls.append(_extracted_to)
             print("Constructing training data sets .....")
             x_data = []
             y_data = []
+            _idx_ls = sorted(list(_idx_ls))
             for _img_extracted_dir in _img_extracted_dir_ls:
                 for (dirpath, dirnames, filenames) in os.walk(_img_extracted_dir):
                     for filename in filenames:
                         if filename.endswith('.JPEG'):
-                            WNID = filename.split('.')[0]
+                            WNID = filename.split('.')[0].split('_')[0]
                             _abs_dir = os.sep.join([dirpath, filename])
                             _x = cv2.imread(_abs_dir)
-                            _x = cv2.resize(_x, dsize=(224, 224, 3))
+                            _x = cv2.resize(_x, (224, 224))
                             x_data.append(_x)
-                            y_data.append(int(_label_dict[WNID]['idx']))
+                            _idx = int(_label_dict[WNID]['idx'])
+                            _reranged_idx = _idx_ls.index(_idx)
+                            y_data.append([_reranged_idx])
 
             shuffle_ls = list(zip(x_data, y_data))
             random.shuffle(shuffle_ls)

@@ -13,14 +13,15 @@ file:
 data:
   standard: True
   name: 'ILSVRC2012'
-  img_dir: ''
-  label_fp: ''
+  img_dir: '/home/ubuntu/Downloads/ILSVRC2012_img_train_t3'
+  label_fp: '/home/ubuntu/Downloads/ILSVRC/devkit/data/map_clsloc.txt'
+  extracted: True
   split_ratio: 0.8
 
 model:
   name: "stacked-unet"
   num_class: 120
-  starter_lr: 0.0002
+  starter_lr: 0.02
   decay_steps: 1000
   global_step: 100000
   inputs:
