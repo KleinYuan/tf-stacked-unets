@@ -73,6 +73,7 @@ class Model(object):
                             _abs_dir = os.sep.join([dirpath, filename])
                             _x = cv2.imread(_abs_dir)
                             _x = cv2.resize(_x, (224, 224))
+                            _x = cv2.normalize(_x, None, alpha=0, beta=1)
                             x_data.append(_x)
                             _idx = int(_label_dict[WNID]['idx'])
                             _reranged_idx = _idx_ls.index(_idx)

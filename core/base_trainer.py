@@ -114,6 +114,7 @@ class BaseTrainer(object):
 
             for _epoch in range(0, self.epochs):
                 self._epoch_train(epoch=_epoch)
+                self.model.learning_rate = 0.5*self.model.learning_rate
 
             save_path = self.saver.save(self.session, self.save_path)
             self.logger.info('Training ended and model file is in here: ', save_path)
