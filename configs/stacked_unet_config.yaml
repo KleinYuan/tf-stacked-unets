@@ -1,7 +1,7 @@
 
 train:
-  epochs: 100
-  batch_size: 16
+  epochs: 1000
+  batch_size: 64
   val_epoch: 10
   save_epoch: 10
 
@@ -12,19 +12,21 @@ file:
 
 data:
   standard: True
-  name: 'cifar10'
-  number: 1000
+  name: 'ILSVRC2012'
+  img_dir: ''
+  label_fp: ''
+  split_ratio: 0.8
 
 model:
   name: "stacked-unet"
-  num_class: 10
+  num_class: 120
   starter_lr: 0.0002
   decay_steps: 1000
   global_step: 100000
   inputs:
     x_pl:
       name: input
-      shape: [32, 32, 3]
+      shape: [224, 224, 3]
     y_pl:
       name: output
       shape: [1]
