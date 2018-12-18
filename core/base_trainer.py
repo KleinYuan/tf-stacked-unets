@@ -1,5 +1,7 @@
 import tensorflow as tf
-
+import numpy as np
+import random
+import cv2
 
 class BaseTrainer(object):
     session = None
@@ -25,6 +27,38 @@ class BaseTrainer(object):
         self.logger = logger
         self.data_model = data_model
 
+    def _random_flip(self, x_batch):
+        _augmented_x_batch = np.zeros_like(x_batch)
+        should_flip = random.random() < 0.5
+        for idx, _ in enumerate(x_batch):
+            _augmented_x = x_batch[idx]
+            if should_flip:
+                flip_direction = random.choice([-1, 0, 1])
+                _augmented_x = cv2.flip(_augmented_x, flip_direction)
+            _augmented_x_batch[idx] = _augmented_x
+        return _augmented_x_batch
+
+    def _random_rotate(self, x_batch):
+        _augmented_x_batch = np.zeros_like(x_batch)
+        should_rotate = random.random() < 0.9
+        for idx, _ in enumerate(x_batch):
+            _augmented_x = x_batch[idx]
+            if should_rotate:
+                rotate_angle = int(random.random() * 360)
+                _augmented_x = self._rotate(_augmented_x, rotate_angle)
+            _augmented_x_batch[idx] = _augmented_x
+        return _augmented_x_batch
+
+    @staticmethod
+    def _rotate(image, angle):
+        # grab the dimensions of the image and then determine the
+        # center
+        (h, w) = image.shape[:2]
+        (cX, cY) = (w // 2, h // 2)
+        M = cv2.getRotationMatrix2D((cX, cY), -angle, 1.0,)
+        # perform the actual rotation and return the image
+        return cv2.warpAffine(image, M, (w, h))
+
     def _epoch_train(self, epoch):
         x = self.x_train
         y = self.y_train
@@ -33,6 +67,8 @@ class BaseTrainer(object):
         _iter = 0
         for x_batch, y_batch in self.data_model.batch_iterator(x, y, batch_size=self.batch_size):
             _iter += 1
+            x_batch = self._random_flip(x_batch)
+            x_batch = self._random_rotate(x_batch)
             feed_dict = {
                 self.model.x_pl: x_batch,
                 self.model.y_pl: y_batch,
