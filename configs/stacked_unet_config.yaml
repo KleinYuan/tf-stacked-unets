@@ -21,7 +21,7 @@ data:
 model:
   name: "stacked-unet"
   num_class: 120
-  starter_lr: 0.02
+  starter_lr: 0.01
   decay_steps: 1000
   global_step: 100000
   inputs:
