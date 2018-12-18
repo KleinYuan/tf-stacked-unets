@@ -37,13 +37,21 @@ class BaseTrainer(object):
                 self.model.x_pl: x_batch,
                 self.model.y_pl: y_batch,
             }
-            _, _train_loss, summary = self.session.run([self.model.optimizer, self.model.loss, self.summary_op], feed_dict=feed_dict)
+            _, _train_loss, summary_train = self.session.run([self.model.optimizer, self.model.loss, self.summary_op], feed_dict=feed_dict)
             train_loss_agg += _train_loss
             self.logger.info('  {} th iter: train loss: {}'.format(_iter, _train_loss))
-            self.writer.add_summary(summary, epoch)
+            self.writer_train.add_summary(summary_train, epoch)
         avg_train_loss = train_loss_agg / _iter
         self.logger.info('{} th epoch:  train loss: {}'.format(epoch, avg_train_loss))
 
+        if (epoch % self.val_epoch) == 0:
+            feed_dict = {
+                self.model.x_pl: self.x_val,
+                self.model.y_pl: self.y_val,
+            }
+            val_loss, summary_val = self.session.run([self.model.loss, self.summary_op], feed_dict=feed_dict)
+            self.logger.info('{} th epoch:  val loss: {}'.format(epoch, val_loss))
+            self.writer_val.add_summary(summary_val, epoch)
         if (epoch % self.save_epoch) == 0 or (epoch == self.epochs - 1):
             snapshot_path = self.saver.save(sess=self.session, save_path="%s_%s" % (self.save_path, epoch))
             self.logger.info('Snapshot of {} th epoch is saved to {}'.format(epoch, snapshot_path))
@@ -57,7 +65,8 @@ class BaseTrainer(object):
             self.x_val, self.y_val = self.data_model.get_val()
             self.session.run(self.model.init_graph)
             self.saver = tf.train.Saver()
-            self.writer = tf.summary.FileWriter(logdir=self.logdir, graph=self.session.graph)
+            self.writer_train = tf.summary.FileWriter(logdir=self.logdir + 'train/', graph=self.session.graph)
+            self.writer_val = tf.summary.FileWriter(logdir=self.logdir + 'val/', graph=self.session.graph)
 
             for _epoch in range(0, self.epochs):
                 self._epoch_train(epoch=_epoch)
