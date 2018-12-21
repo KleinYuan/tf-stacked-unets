@@ -75,6 +75,9 @@ class BaseTrainer(object):
             }
             _, _train_loss, summary_train = self.session.run([self.model.optimizer, self.model.loss, self.summary_op], feed_dict=feed_dict)
             train_loss_agg += _train_loss
+            pred = self.session.run([self.model.prediction], feed_dict=feed_dict)
+            # print("pred: {}/{}/{}".format(pred[0][0], pred[0][0].shape, np.argmax(pred[0][0])))
+            # print("gt: {}".format(y_batch[0]))
             self.logger.info('  {} th iter: train loss: {}'.format(_iter, _train_loss))
             self.writer_train.add_summary(summary_train, epoch)
         avg_train_loss = train_loss_agg / _iter

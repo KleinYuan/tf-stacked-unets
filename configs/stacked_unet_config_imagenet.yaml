@@ -6,8 +6,8 @@ train:
   save_epoch: 10
 
 file:
-  logdir: log/
-  save_path: save/
+  logdir: log/sunet-imagenet/
+  save_path: save/sunet-imagenet/
 
 
 data:
@@ -21,9 +21,9 @@ data:
 model:
   name: "stacked-unet"
   num_class: 120
-  starter_lr: 0.01
-  decay_steps: 10000
-  global_step: 100000
+  starter_lr: 0.0002
+  decay_steps: 1000
+  global_step: 100
   inputs:
     x_pl:
       name: input
