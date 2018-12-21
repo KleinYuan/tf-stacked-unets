@@ -37,10 +37,10 @@ def deconv2d(inputs, factor=2, subscope='0'):
         b, h, w, c = inputs.get_shape().as_list()
         n_h, n_w = h * factor, w * factor
 
-        # Uncomment to train SUNEt-64
-        if h == 4:
-            n_h = 7
-            n_w = 7
+        # TODO: Uncomment to train SUNEt-64
+        # if h == 4:
+        #     n_h = 7
+        #     n_w = 7
         output = tf.image.resize_images(images=inputs, size=(n_h, n_w))
         print('{}| {} ---> {}'.format("deconv2d_{}".format(subscope), inputs.get_shape(), output.get_shape()))
         return output

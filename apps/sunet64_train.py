@@ -2,7 +2,7 @@ import sys
 from ruamel.yaml import YAML
 from box import Box
 import tensorflow as tf
-from models.sunet_lite_model import Model
+from models.sunet64_model import Model
 from core.base_trainer import BaseTrainer as Trainer
 from core.base_data import Model as DataModel
 

@@ -2,7 +2,9 @@ import cv2
 import os
 import tarfile
 import random
+import numpy as np
 import tensorflow as tf
+
 
 class Model(object):
     data_sets = None
@@ -37,8 +39,6 @@ class Model(object):
         print("y_train: {}".format(y_train.shape))
         print("X_test: {}".format(X_test.shape))
         print("y_test: {}".format(y_test.shape))
-        num_train = X_train.shape[0]
-        num_test = X_test.shape[0]
 
         X_train = X_train/128 - 1
         X_test = X_test/128 -1
@@ -75,6 +75,8 @@ class Model(object):
                     'idx': _cls_split[1],
                     'name': _cls_split[2]
                 }
+
+            # TODO: Please refine those UGLY but working script to load ImageNet
 
             print("Extracting data from .tar ......")
             _img_extracted_dir_ls = []
