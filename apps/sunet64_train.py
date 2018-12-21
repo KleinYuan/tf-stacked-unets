@@ -2,7 +2,7 @@ import sys
 from ruamel.yaml import YAML
 from box import Box
 import tensorflow as tf
-from models.sunet_model import Model
+from models.sunet64_model import Model
 from core.base_trainer import BaseTrainer as Trainer
 from core.base_data import Model as DataModel
 
@@ -11,8 +11,8 @@ logger = tf.logging
 
 
 def run(config):
-    model = Model(config=config.model, logger=logger)
     data_model = DataModel(config=config.data, logger=logger)
+    model = Model(config=config.model, logger=logger)
     trainer = Trainer(model=model, data_model=data_model, config=config, logger=logger)
     trainer.train()
 

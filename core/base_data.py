@@ -2,6 +2,8 @@ import cv2
 import os
 import tarfile
 import random
+import numpy as np
+import tensorflow as tf
 
 
 class Model(object):
@@ -16,6 +18,33 @@ class Model(object):
         self.logger = logger
         self._load_data()
 
+    def _load_keras_data(self, datasets='cifar10'):
+
+        if datasets == 'cifar10':
+            (X_train, y_train), (X_test, y_test) = tf.keras.datasets.cifar10.load_data()
+        elif datasets == 'cifar100':
+            (X_train, y_train), (X_test, y_test) = tf.keras.datasets.cifar100.load_data()
+
+        else:
+            raise Exception('Not supported datasets: {}'.format(datasets))
+
+        if len(X_train.shape) < 4:
+            X_train = np.expand_dims(X_train, axis=-1)
+            y_train = np.expand_dims(y_train, axis=-1)
+            X_test = np.expand_dims(X_test, axis=-1)
+            y_test = np.expand_dims(y_test, axis=-1)
+
+        print("Data Shapes: ")
+        print("X_train: {}".format(X_train.shape))
+        print("y_train: {}".format(y_train.shape))
+        print("X_test: {}".format(X_test.shape))
+        print("y_test: {}".format(y_test.shape))
+
+        X_train = X_train/128 - 1
+        X_test = X_test/128 -1
+
+        return X_train, y_train, X_test, y_test
+
     def _load_data(self):
         _data_name = self.config.name
         self.logger.info("Loading {}...".format(_data_name))
@@ -29,9 +58,10 @@ class Model(object):
                 how_many=_num_data
             )
             self.logger.info("Loaded {}...".format(_data_name))
-        elif _data_name == 'cifar10':
-            import tensorflow as tf
-            (self.x_train, self.y_train), (self.x_val, self.y_val) = tf.keras.datasets.cifar10.load_data()
+        elif 'cifar' in _data_name:
+            self.x_train, self.y_train, self.x_val, self.y_val = self._load_keras_data(_data_name)
+
+            return
         elif _data_name == 'ILSVRC2012':
             _img_dir = self.config.img_dir
             _label_fp = self.config.label_fp
@@ -45,6 +75,8 @@ class Model(object):
                     'idx': _cls_split[1],
                     'name': _cls_split[2]
                 }
+
+            # TODO: Please refine those UGLY but working script to load ImageNet
 
             print("Extracting data from .tar ......")
             _img_extracted_dir_ls = []
@@ -70,10 +102,11 @@ class Model(object):
                     for filename in filenames:
                         if filename.endswith('.JPEG'):
                             WNID = filename.split('.')[0].split('_')[0]
-                            _abs_dir = os.sep.join([dirpath, filename])
+                            _abs_dir = dirpath + filename
+                            print("Reading : {}".format(_abs_dir))
                             _x = cv2.imread(_abs_dir)
                             _x = cv2.resize(_x, (224, 224))
-                            _x = cv2.normalize(_x, None, alpha=0, beta=1)
+                            _x = cv2.normalize(_x, _x, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
                             x_data.append(_x)
                             _idx = int(_label_dict[WNID]['idx'])
                             _reranged_idx = _idx_ls.index(_idx)
@@ -87,6 +120,13 @@ class Model(object):
             self.y_train = y_data[:split_idx]
             self.x_val = x_data[split_idx:]
             self.y_val = y_data[split_idx:]
+            # for cnt, _x in enumerate(self.x_train):
+            #     print(_x.shape)
+            #     cv2.imshow('{}'.format(_idx_ls[self.y_train[cnt][0]]), _x)
+            #     cv2.waitKey(0)
+            #     cv2.destroyAllWindows()
+
+
 
 
     @staticmethod

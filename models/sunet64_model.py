@@ -10,14 +10,17 @@ from utils.blocks import conv2d, unet_module
 class Model(BaseModel):
 
      def define_loss(self):
-        print(self.prediction)
-        print(self.y_pl)
-        self.loss = tf.reduce_mean(tf.losses.sparse_softmax_cross_entropy(logits=self.prediction, labels=self.y_pl))
+        cross_entropy_loss = tf.reduce_mean(tf.losses.sparse_softmax_cross_entropy(logits=self.prediction, labels=self.y_pl))
+        vars   = tf.trainable_variables() 
+        l2_loss = tf.add_n([ tf.nn.l2_loss(v) for v in vars if 'bias' not in v.name ]) * 0.00005
+        self.loss = cross_entropy_loss + l2_loss
+        tf.summary.scalar("l2-loss", l2_loss)
+        tf.summary.scalar("cross_entropy_loss", cross_entropy_loss)
 
      def define_optimizer(self):
         global_step = tf.Variable(0, trainable=False)
-        self.learning_rate = tf.train.exponential_decay(self.config.starter_lr, global_step, 100000, 0.96, staircase=True)
-        self.optimizer = tf.train.MomentumOptimizer(self.learning_rate, 0.95).minimize(self.loss, global_step=global_step)
+        self.learning_rate = tf.train.exponential_decay(self.config.starter_lr, global_step, 10000, 0.96, staircase=True)
+        self.optimizer = tf.train.MomentumOptimizer(self.learning_rate, 0.9, use_nesterov=True).minimize(self.loss, global_step=global_step)
 
      def forward(self, inputs):
 
@@ -99,7 +102,7 @@ class Model(BaseModel):
             print("classification_layer--------------")
             pool100 = tf.reduce_mean(conv93, axis=[1, 2])
             print('{}| {} ---> {}'.format("global_pooling", conv93.get_shape(), pool100.get_shape()))
-            output = tf.layers.dense(inputs=pool100, units=self.config.num_class, name='output')
-            output = tf.reshape(output, (tf.shape(output)[0], self.config.num_class), name='output/reshaped')
+            output = tf.layers.dense(inputs=pool100, units=self.config.num_class, name='fc', activation=None)
+            # output = tf.nn.softmax(fc, name='output')
         print("Output ------> {}".format(output.get_shape()))
         return output
